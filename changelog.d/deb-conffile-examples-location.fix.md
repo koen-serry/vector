@@ -1,0 +1,2 @@
+Fixed two Debian packaging issues: `/etc/vector/vector.yaml` is now shipped as a proper Debian conffile (a stub with no active sources/sinks) so local modifications are preserved across upgrades; example configurations have been moved from `/etc/vector/examples/` to `/usr/share/doc/vector/examples/` where they belong as documentation rather than administrator-managed configuration.
+authors: koenserry
