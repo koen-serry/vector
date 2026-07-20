@@ -12,4 +12,21 @@ mkdir -p /var/lib/vector
 # Make vector:vector the owner of the Vector data directory
 chown -R vector:vector /var/lib/vector
 
+# /etc/vector/vector.yaml was not a dpkg conffile before this version. If a
+# file already exists at that path, dpkg has no record of it and will treat
+# it as "created by you", prompting interactively (or failing outright on
+# unattended upgrades) before it will unpack the new conffile over it. Move
+# any such untracked file out of the way so dpkg can install the conffile
+# cleanly; postinst restores it afterwards so the user's content is kept
+# byte-for-byte, without ever prompting.
+case "$1" in
+  install|upgrade)
+    if [ -e /etc/vector/vector.yaml ] && [ ! -L /etc/vector/vector.yaml ]; then
+      if ! dpkg-query -W -f='${Conffiles}' vector 2>/dev/null | grep -q ' /etc/vector/vector.yaml '; then
+        mv /etc/vector/vector.yaml /etc/vector/vector.yaml.vector-preserve
+      fi
+    fi
+    ;;
+esac
+
 #DEBHELPER#

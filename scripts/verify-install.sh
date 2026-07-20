@@ -20,7 +20,26 @@ install_package () {
   esac
 }
 
+case "$package" in
+  *.deb)
+    # Simulate a pre-existing /etc/vector/vector.yaml that predates this file
+    # being a dpkg conffile (e.g. a user-created file from before this fix, or
+    # an earlier Vector version that didn't ship one at all). Installing over
+    # it must not prompt (dpkg has no tty here, so a prompt would hang/fail
+    # this script) and must leave the user's content untouched.
+    mkdir -p /etc/vector
+    echo "unmanaged: pre-existing-config" > /etc/vector/vector.yaml
+    ;;
+esac
+
 install_package "$package"
+
+case "$package" in
+  *.deb)
+    grep -q "unmanaged: pre-existing-config" /etc/vector/vector.yaml || \
+      (echo "pre-existing, dpkg-untracked /etc/vector/vector.yaml was not preserved on install" && exit 1)
+    ;;
+esac
 
 getent passwd vector || (echo "vector user missing" && exit 1)
 getent group vector || (echo "vector group  missing" && exit 1)
