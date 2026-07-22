@@ -46,7 +46,7 @@ chown -R vector:vector /var/lib/vector
 case "$1" in
   install|upgrade)
     if [ -e /etc/vector/vector.yaml ] && [ ! -L /etc/vector/vector.yaml ]; then
-      if ! dpkg-query -W -f='${Conffiles}' vector 2>/dev/null | grep -q ' /etc/vector/vector.yaml '; then
+      if ! dpkg-query -W -f='${Conffiles}' vector 2>/dev/null | grep -qE ' /etc/vector/vector\.yaml [0-9a-f]'; then
         mv /etc/vector/vector.yaml /etc/vector/vector.yaml.vector-preserve
       fi
     fi
